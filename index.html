@@ -1,0 +1,352 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+.wrap {
+  font-family: var(--font-sans);
+  min-height: 100vh; min-height: 100svh;
+  padding: 20px 14px 32px;
+  transition: background 1s ease;
+  position: relative; overflow: hidden;
+}
+.wrap.morning { background: linear-gradient(170deg, #fff8ee 0%, #ffeedd 40%, #fff0f5 100%); }
+.wrap.night   { background: linear-gradient(170deg, #0a0e1a 0%, #101830 50%, #0d1225 100%); }
+.bg-canvas { position: absolute; inset: 0; pointer-events: none; z-index: 0; }
+.content { position: relative; z-index: 1; }
+
+.time-toggle { display: flex; justify-content: center; margin-bottom: 16px; opacity:0; animation: fu 0.6s ease forwards 0.1s; }
+.toggle-wrap {
+  display: flex; border-radius: 28px; padding: 3px;
+  border: 1px solid rgba(0,0,0,0.1);
+  background: rgba(255,255,255,0.35);
+}
+.night .toggle-wrap { border-color: rgba(255,255,255,0.15); background: rgba(255,255,255,0.08); }
+.time-btn {
+  padding: 8px 22px; border-radius: 24px; border: none;
+  font-size: 13px; font-weight: 500; cursor: pointer;
+  transition: all 0.3s; display: flex; align-items: center; gap: 6px;
+  background: transparent; color: #9a8a80;
+}
+.night .time-btn { color: rgba(255,255,255,0.4); }
+.time-btn.active { background: white; color: #a06030; }
+.night .time-btn.active { background: rgba(255,255,255,0.12); color: #c8d8ff; }
+.time-btn i { font-size: 15px; }
+
+.hero-top { text-align: center; margin-bottom: 14px; opacity:0; animation: fu 0.7s ease forwards 0.2s; }
+.eyebrow { font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 3px; transition: color 0.5s; }
+.morning .eyebrow { color: #c09060; }
+.night   .eyebrow { color: #8090c0; }
+.hero-top h1 { font-size: 18px; font-weight: 500; line-height: 1.35; transition: color 0.5s; }
+.morning .hero-top h1 { color: #2e2420; }
+.night   .hero-top h1 { color: #e8eeff; }
+
+.face-area { display: flex; justify-content: center; margin-bottom: 14px; opacity:0; animation: fu 0.7s ease forwards 0.3s; }
+
+.step-tabs {
+  display: flex; flex-wrap: wrap; justify-content: center;
+  gap: 6px; margin-bottom: 10px;
+  opacity:0; animation: fu 0.7s ease forwards 0.45s;
+}
+
+.tab-btn {
+  display: flex; flex-direction: column; align-items: center;
+  padding: 7px 13px; border-radius: 22px;
+  cursor: pointer; font-size: 12px; font-weight: 500;
+  white-space: nowrap; transition: all 0.22s; line-height: 1;
+}
+.tab-btn .step-no { font-size: 9px; font-weight: 400; margin-bottom: 3px; letter-spacing: 0.06em; }
+
+.morning .tab-btn {
+  border: 1.5px solid rgba(0,0,0,0.18);
+  background: rgba(255,255,255,0.55);
+  color: #2a2018;
+}
+.morning .tab-btn .step-no { color: #6a5a50; }
+.morning .tab-btn.active {
+  background: white;
+  border-color: #2a2018;
+  color: #2a2018;
+}
+.morning .tab-btn.active .step-no { color: #4a3a30; }
+
+.night .tab-btn {
+  border: 1.5px solid rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.07);
+  color: rgba(255,255,255,0.45);
+}
+.night .tab-btn .step-no { color: rgba(255,255,255,0.3); }
+.night .tab-btn.active {
+  background: rgba(255,255,255,0.14);
+  border-color: var(--tc);
+  color: var(--tc);
+}
+.night .tab-btn.active .step-no { color: var(--tc); opacity: 0.7; }
+
+.controls { display: flex; justify-content: center; margin-bottom: 10px; opacity:0; animation: fu 0.7s ease forwards 0.5s; }
+.ctrl-btn {
+  display: flex; align-items: center; gap: 6px;
+  padding: 7px 18px; border-radius: 24px;
+  border: 1.5px solid rgba(0,0,0,0.12);
+  background: rgba(255,255,255,0.6);
+  cursor: pointer; font-size: 12px; color: #5a4e48; transition: all 0.2s;
+}
+.ctrl-btn:hover { background: white; }
+.ctrl-btn.playing { border-color: #c46858; color: #c46858; }
+.night .ctrl-btn { border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.6); }
+.night .ctrl-btn.playing { border-color: #8090e0; color: #a0b0f0; }
+.ctrl-btn i { font-size: 14px; }
+
+.detail-card {
+  border-radius: 18px; padding: 16px 15px 14px;
+  opacity:0; animation: fu 0.7s ease forwards 0.6s;
+  transition: background 0.5s, border-color 0.5s;
+}
+.morning .detail-card { background: rgba(255,255,255,0.88); border: 0.5px solid rgba(0,0,0,0.07); }
+.night   .detail-card { background: rgba(255,255,255,0.07); border: 0.5px solid rgba(255,255,255,0.12); }
+
+.card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+.card-icon { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
+.card-step-label { font-size: 10px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 2px; }
+.card-name { font-size: 18px; font-weight: 500; transition: color 0.5s; }
+.morning .card-name { color: #1e1814; }
+.night   .card-name { color: #e8eeff; }
+
+.card-purpose { font-size: 12.5px; line-height: 1.65; margin-bottom: 12px; padding: 9px 12px; border-radius: 10px; border-left: 3px solid var(--sc); background: var(--sb); }
+.morning .card-purpose { color: #5a4e48; }
+.night   .card-purpose { color: #c0ccee; }
+
+.steps-label { font-size: 10px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 7px; }
+.morning .steps-label { color: #9a8a82; }
+.night   .steps-label { color: rgba(255,255,255,0.4); }
+
+.how-steps { display: flex; flex-direction: column; gap: 7px; }
+.how-step { display: flex; gap: 10px; align-items: flex-start; }
+.how-num { width: 22px; height: 22px; border-radius: 50%; font-size: 11px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; background: var(--sb2); color: var(--sc); }
+.how-text { font-size: 12.5px; line-height: 1.65; flex: 1; }
+.morning .how-text { color: #3a3028; }
+.night   .how-text { color: #b8c8e8; }
+.how-text strong { font-weight: 500; color: var(--sc); }
+
+.tip-box { margin-top: 10px; border-radius: 10px; padding: 9px 11px; display: flex; gap: 8px; align-items: flex-start; background: var(--sb); }
+.tip-text { font-size: 11.5px; line-height: 1.65; }
+.morning .tip-text { color: #5a4e48; }
+.night   .tip-text { color: #a8b8d8; }
+
+.progress-bar { display: flex; gap: 4px; margin-top: 12px; padding-top: 10px; }
+.morning .progress-bar { border-top: 0.5px solid rgba(0,0,0,0.06); }
+.night   .progress-bar { border-top: 0.5px solid rgba(255,255,255,0.1); }
+.prog-seg { flex: 1; height: 4px; border-radius: 2px; transition: background 0.4s; }
+.morning .prog-seg { background: rgba(0,0,0,0.08); }
+.night   .prog-seg { background: rgba(255,255,255,0.1); }
+.prog-seg.done { background: var(--pc); }
+
+@keyframes fu { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+</style>
+
+<h2 style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)">朝・夜のスキンケアルーティン</h2>
+
+<div class="wrap morning" id="wrap">
+  <canvas class="bg-canvas" id="bgCanvas"></canvas>
+  <div class="content">
+    <div class="time-toggle">
+      <div class="toggle-wrap">
+        <button class="time-btn active" id="btnMorning" onclick="setTime('morning')">
+          <i class="ti ti-sun" aria-hidden="true"></i>朝のケア
+        </button>
+        <button class="time-btn" id="btnNight" onclick="setTime('night')">
+          <i class="ti ti-moon" aria-hidden="true"></i>夜のケア
+        </button>
+      </div>
+    </div>
+
+    <div class="hero-top">
+      <div class="eyebrow" id="eyebrow">morning routine</div>
+      <h1 id="heroTitle">朝の美肌<br>ルーティン</h1>
+    </div>
+
+    <div class="face-area">
+      <svg width="150" height="150" viewBox="0 0 150 150" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient id="sg" cx="50%" cy="38%" r="55%">
+            <stop offset="0%" stop-color="#fde8d4"/>
+            <stop offset="100%" stop-color="#f0c0a0"/>
+          </radialGradient>
+        </defs>
+        <ellipse cx="75" cy="82" rx="54" ry="63" fill="url(#sg)"/>
+        <g id="lCream" opacity="0" style="transition:opacity 0.5s"><ellipse cx="75" cy="43" rx="50" ry="11" fill="#f0d0a0" opacity="0.7"/></g>
+        <g id="lSunscreen" opacity="0" style="transition:opacity 0.5s"><ellipse cx="75" cy="38" rx="50" ry="9" fill="#f8e8a0" opacity="0.6"/></g>
+        <g id="lEmul" opacity="0" style="transition:opacity 0.5s">
+          <path d="M29 72 Q54 60 75 72 Q96 84 121 72" stroke="#aac4dc" stroke-width="2" fill="none"/>
+          <path d="M29 84 Q54 72 75 84 Q96 96 121 84" stroke="#aac4dc" stroke-width="1.5" fill="none" opacity="0.55"/>
+          <circle cx="75" cy="76" r="3" fill="#7aaac0" opacity="0.7"/>
+          <circle cx="53" cy="68" r="2" fill="#7aaac0" opacity="0.55"/>
+          <circle cx="97" cy="68" r="2" fill="#7aaac0" opacity="0.55"/>
+        </g>
+        <g id="lLotion" opacity="0" style="transition:opacity 0.5s">
+          <circle cx="63" cy="59" r="4" fill="#90c8dc" opacity="0.7"/>
+          <circle cx="87" cy="55" r="3.2" fill="#90c8dc" opacity="0.65"/>
+          <circle cx="75" cy="72" r="4.5" fill="#90c8dc" opacity="0.7"/>
+          <circle cx="53" cy="76" r="2.7" fill="#90c8dc" opacity="0.55"/>
+          <circle cx="97" cy="76" r="3" fill="#90c8dc" opacity="0.6"/>
+          <circle cx="67" cy="88" r="2.3" fill="#90c8dc" opacity="0.5"/>
+          <circle cx="84" cy="91" r="2.7" fill="#90c8dc" opacity="0.55"/>
+        </g>
+        <g id="lClean" opacity="0" style="transition:opacity 0.5s"><ellipse cx="75" cy="43" rx="50" ry="11" fill="#c8dce8" opacity="0.7"/></g>
+        <ellipse cx="75" cy="82" rx="54" ry="63" fill="none" stroke="#dda880" stroke-width="1.2"/>
+        <ellipse cx="59" cy="73" rx="8" ry="5" fill="#f8d8b8"/>
+        <ellipse cx="91" cy="73" rx="8" ry="5" fill="#f8d8b8"/>
+        <circle cx="59" cy="73" r="3.2" fill="#4a3228"/>
+        <circle cx="91" cy="73" r="3.2" fill="#4a3228"/>
+        <circle cx="60.2" cy="71.8" r="1.1" fill="white"/>
+        <circle cx="92.2" cy="71.8" r="1.1" fill="white"/>
+        <path d="M72 86 Q75 90 78 86" stroke="#b07050" stroke-width="1" fill="none"/>
+        <path d="M66 99 Q75 106 84 99" stroke="#b07050" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+        <circle id="rip" cx="75" cy="82" r="42" fill="none" stroke="#d4a080" stroke-width="1.5" opacity="0"/>
+      </svg>
+    </div>
+
+    <div class="step-tabs" id="tabRow"></div>
+
+    <div class="controls">
+      <button class="ctrl-btn playing" id="playBtn" onclick="togglePlay()">
+        <i class="ti ti-player-pause" id="playIcon" aria-hidden="true"></i>
+        <span id="playLabel">自動再生中</span>
+      </button>
+    </div>
+
+    <div class="detail-card" id="detailCard"></div>
+  </div>
+</div>
+
+<script>
+const MORNING = [
+  { key:'lotion', icon:'💧', iconBg:'#e4f5f8', color:'#3a98b0', bg:'#eef9fc', bg2:'#d8f0f4', tc:'#1a1814', label:'STEP 01', name:'化粧水', purpose:'水分を肌の奥まで補給し、角質をやわらかく整えます。1日のケアのスタートとして肌を整えます。', steps:[{t:'洗顔直後すぐに', d:'肌が乾燥する前に、<strong>2〜3分以内</strong>に使い始めるのが理想です。'},{t:'たっぷりとる', d:'500円玉大を手のひらに。<strong>惜しみなく</strong>使うのがポイント。'},{t:'手で温めてから', d:'体温で温めてから顔へ。<strong>浸透しやすく</strong>なります。'},{t:'手のひらで密着', d:'両手で包み込み、<strong>3〜5秒間</strong>やさしくプレスします。'},{t:'3回重ね塗り', d:'重ね付けで水分量アップ。<strong>各回軽く押さえて</strong>から次の層へ。'}], tip:'✦ コットンより手のひらの方が温度が伝わり浸透しやすいとされています。', rip:'#50b0c8' },
+  { key:'emul', icon:'🌿', iconBg:'#f0ecf8', color:'#8060b0', bg:'#f5f0fc', bg2:'#ede8f8', tc:'#1a1814', label:'STEP 02', name:'乳液', purpose:'水分を油分でコーティングし蒸発を防ぎます。水分と油分のバランスを整え、肌をなめらかに保ちます。', steps:[{t:'化粧水の直後に', d:'水分が残っているうちに重ねると<strong>油水バランス</strong>が取りやすくなります。'},{t:'100円玉大を手に', d:'少量でも伸びやすい。<strong>温めてから</strong>使うとよりなじみます。'},{t:'内側から外側へ', d:'乾燥しやすい<strong>鼻・口周りから</strong>外側に向けてのばします。'},{t:'手のひらでプレス', d:'<strong>やさしく密着</strong>させながら全体になじませます。'},{t:'Tゾーンは薄めに', d:'皮脂が多い部位は<strong>少なめ</strong>に。テカリや毛穴詰まりを防ぎます。'}], tip:'✦ 乳液をやや温めてから使うと、よりなじみやすくなります。', rip:'#a080d0' },
+  { key:'cream', icon:'✨', iconBg:'#f7f0e3', color:'#a07020', bg:'#fdf5e8', bg2:'#f8eccc', tc:'#1a1814', label:'STEP 03', name:'クリーム', purpose:'油分で水分・美容成分をしっかり閉じ込めます。バリア機能を高め、外的刺激から肌を守ります。', steps:[{t:'保湿の仕上げに', d:'最後に使うことで<strong>すべての保湿成分</strong>をフタをします。'},{t:'パール粒大を取る', d:'多すぎると<strong>べたつき</strong>の原因。少量でOKです。'},{t:'5点置きに広げる', d:'額・両頬・鼻・顎に置いてから<strong>外側へのばす</strong>と均一に。'},{t:'指の腹でなじませる', d:'強く擦らず<strong>軽く押し込むように</strong>やさしくなじませます。'},{t:'目元・口元は薬指で', d:'皮膚が薄い部位は<strong>薬指を使って</strong>ごく軽くなじませます。'}], tip:'✦ 朝は軽めに、夜は多めに使うなど時間帯で量を調整しましょう。', rip:'#c09040' },
+  { key:'sunscreen', icon:'☀️', iconBg:'#fff8e0', color:'#c08010', bg:'#fffae8', bg2:'#ffefc0', tc:'#1a1814', label:'STEP 04', name:'日焼け止め', purpose:'紫外線によるシミ・シワ・たるみを防ぐ、朝のスキンケアで最も大切なステップです。', steps:[{t:'クリームの後に塗る', d:'スキンケアが浸透してから、<strong>最後</strong>に日焼け止めを塗ります。'},{t:'適量をムラなく', d:'顔全体に<strong>パール2粒分</strong>が目安。薄すぎると効果が半減します。'},{t:'内側から外側へ', d:'鼻・頬・おでこから<strong>外側に向けて</strong>やさしくのばします。'},{t:'目の周りも忘れずに', d:'シミができやすい<strong>目周り・鼻周り</strong>も丁寧に塗り込みます。'},{t:'2〜3時間ごとに塗り直す', d:'汗や皮脂で落ちるため、<strong>こまめな塗り直し</strong>が重要です。'}], tip:'✦ SPF30〜50・PA+++以上を選ぶと日常の紫外線対策に十分です。', rip:'#d0a020' },
+];
+
+const NIGHT = [
+  { key:'cleansing', icon:'🧴', iconBg:'#eef5e8', color:'#5a8860', bg:'#f0f8ee', bg2:'#dceedd', tc:'#5a8860', label:'STEP 01', name:'クレンジング', purpose:'メイクや皮脂・ほこりを優しく落とし、肌をリセット。次のケアが浸透しやすい土台をつくります。', steps:[{t:'手を清潔にする', d:'爪の間まで<strong>丁寧に手洗い</strong>し、雑菌が肌に触れないように。'},{t:'適量を手のひらへ', d:'500円玉大が目安。<strong>少なすぎると摩擦</strong>の原因になります。'},{t:'Tゾーンから広げる', d:'皮脂が多い部位から<strong>くるくると優しく</strong>なじませます。'},{t:'ぬるま湯で流す', d:'32〜36℃のぬるま湯で。<strong>熱湯は乾燥</strong>の原因になります。'},{t:'タオルで押し拭き', d:'擦らず<strong>押し当てるように</strong>水分をやさしく取ります。'}], tip:'✦ アイメイクやリップは先に専用リムーバーで落としておくと丁寧です。', rip:'#70a870' },
+  { key:'wash', icon:'🚿', iconBg:'#e4eef8', color:'#4a6890', bg:'#eef2fa', bg2:'#d8e4f4', tc:'#4a6890', label:'STEP 02', name:'洗顔', purpose:'クレンジングで落としきれなかった汚れや余分な成分を洗い流し、毛穴をすっきりと清潔にします。', steps:[{t:'ぬるま湯で予洗い', d:'34〜36℃のぬるま湯で<strong>15〜20秒</strong>予洗いし、毛穴を開かせます。'},{t:'洗顔料を泡立てる', d:'しっかり泡立てから。<strong>泡で包む</strong>ように洗うと摩擦ゼロになります。'},{t:'Tゾーンから洗う', d:'皮脂の多い<strong>おでこ・鼻から</strong>洗い始め、頬は最後に。'},{t:'なでるように洗う', d:'指の腹で<strong>円を描くように</strong>やさしくなでます。'},{t:'すすぎは丁寧に', d:'<strong>生え際・あご下</strong>まで念入りにすすぎます。'}], tip:'✦ 夜はクレンジングと洗顔の2ステップで毛穴の汚れをしっかり除去しましょう。', rip:'#6090c0' },
+  { key:'lotion', icon:'💧', iconBg:'#dce8f4', color:'#3878a8', bg:'#e8f2fc', bg2:'#cce0f4', tc:'#3878a8', label:'STEP 03', name:'化粧水', purpose:'洗顔後に失われた水分を素早く補給。角質をやわらかく整え、続く美容成分の浸透を助けます。', steps:[{t:'洗顔後すぐに', d:'肌が乾燥する前に<strong>2〜3分以内</strong>に使い始めます。'},{t:'たっぷりと取る', d:'500円玉大を手のひらに。夜は<strong>多めに</strong>使うのがおすすめです。'},{t:'手で温めてから', d:'体温で温めてから顔へ。<strong>浸透しやすく</strong>なります。'},{t:'手のひらで密着', d:'両手で包み込み、<strong>3〜5秒間</strong>やさしくプレス。'},{t:'3回重ね塗り', d:'夜は特に念入りに。<strong>重ね付け</strong>で水分をたっぷり補給します。'}], tip:'✦ 夜はスペシャルケアとして導入美容液を化粧水の前に使うのも効果的です。', rip:'#4898c8' },
+  { key:'emul', icon:'🌿', iconBg:'#e8e0f4', color:'#6848a8', bg:'#f0ebfc', bg2:'#e0d8f4', tc:'#6848a8', label:'STEP 04', name:'乳液', purpose:'化粧水の水分を閉じ込め、夜間の乾燥から肌を守ります。睡眠中の肌再生をサポートします。', steps:[{t:'化粧水の直後に', d:'水分が残っているうちに重ねて<strong>油水バランス</strong>を整えます。'},{t:'100円玉大を手に', d:'夜は少し<strong>多めに</strong>使って乾燥をしっかりケアします。'},{t:'内側から外側へ', d:'<strong>乾燥しやすい部位から</strong>外側に向けてのばします。'},{t:'手のひらでプレス', d:'<strong>やさしく密着</strong>させながら全体になじませます。'},{t:'首・デコルテも', d:'忘れがちな<strong>首・デコルテ</strong>までのばすと一体感が出ます。'}], tip:'✦ 夜用乳液はリッチなテクスチャーを選ぶと、より高い保湿効果が得られます。', rip:'#8868c0' },
+  { key:'cream', icon:'✨', iconBg:'#e8e0d4', color:'#806040', bg:'#f4ede8', bg2:'#ecddd4', tc:'#806040', label:'STEP 05', name:'クリーム', purpose:'夜のスキンケアの総仕上げ。睡眠中に肌の修復・再生を助け、翌朝のうるおいある肌をつくります。', steps:[{t:'夜の仕上げに', d:'すべての保湿成分を<strong>しっかりとフタ</strong>をして眠ります。'},{t:'夜は多めに取る', d:'朝より<strong>少し多め</strong>に使ってしっかり保湿します。'},{t:'5点置きに広げる', d:'額・両頬・鼻・顎に置いてから<strong>外側へ</strong>のばします。'},{t:'指の腹でなじませる', d:'<strong>軽く押し込むように</strong>やさしくなじませます。'},{t:'目元・口元は薬指で', d:'皮膚が薄い部位は<strong>薬指</strong>でごく軽くなじませます。'}], tip:'✦ 夜クリームはナイトクリームを使うとより集中的な保湿ケアができます。', rip:'#a08060' },
+];
+
+let mode='morning', current=0, playing=true, autoT, stars=[], tick=0, animFrame;
+
+function getData(){ return mode==='morning'?MORNING:NIGHT; }
+
+function renderTabs(){
+  const data=getData();
+  document.getElementById('tabRow').innerHTML=data.map((d,i)=>`
+    <button class="tab-btn ${i===current?'active':''}" data-s="${i}" style="--tc:${d.tc}" onclick="selectStep(${i})">
+      <span class="step-no">${d.label}</span>${d.name}
+    </button>`).join('');
+}
+
+function renderCard(s){
+  const d=getData()[s], card=document.getElementById('detailCard');
+  card.style.setProperty('--sc',d.color);
+  card.style.setProperty('--sb',d.bg);
+  card.style.setProperty('--sb2',d.bg2);
+  const sh=d.steps.map((st,i)=>`<div class="how-step"><div class="how-num">${i+1}</div><div class="how-text"><strong>${st.t}</strong><br>${st.d}</div></div>`).join('');
+  const data=getData();
+  const ph=data.map((dd,n)=>`<div class="prog-seg ${n<=s?'done':''}" style="${n<=s?'--pc:'+data[n].color:''}"></div>`).join('');
+  card.innerHTML=`
+    <div class="card-header">
+      <div class="card-icon" style="background:${d.iconBg}">${d.icon}</div>
+      <div><div class="card-step-label" style="color:${d.color}">${d.label}</div><div class="card-name">${d.name}</div></div>
+    </div>
+    <div class="card-purpose">${d.purpose}</div>
+    <div class="steps-label">手順</div>
+    <div class="how-steps">${sh}</div>
+    <div class="tip-box"><span style="font-size:14px;flex-shrink:0;margin-top:1px">💡</span><div class="tip-text">${d.tip}</div></div>
+    <div class="progress-bar">${ph}</div>`;
+}
+
+function updateFace(s){
+  const d=getData()[s];
+  const di=getData().findIndex;
+  document.getElementById('lLotion').style.opacity=(d.key==='lotion'||s>getData().findIndex(x=>x.key==='lotion'))?'1':'0';
+  document.getElementById('lEmul').style.opacity=(d.key==='emul'||s>getData().findIndex(x=>x.key==='emul'))?'1':'0';
+  document.getElementById('lCream').style.opacity=(d.key==='cream'||s>getData().findIndex(x=>x.key==='cream'))?'1':'0';
+  document.getElementById('lClean').style.opacity=(mode==='night'&&(d.key==='cleansing'||d.key==='wash'))?'0.7':'0';
+  document.getElementById('lSunscreen').style.opacity=(d.key==='sunscreen')?'0.8':'0';
+  const rip=document.getElementById('rip');
+  rip.setAttribute('stroke',d.rip); rip.style.opacity='0.8';
+  let r=38,op=0.8;
+  const a=setInterval(()=>{r+=1.8;op-=0.04;if(op<=0){clearInterval(a);rip.style.opacity='0';return;}rip.setAttribute('r',r);rip.style.opacity=op;},25);
+}
+
+function selectStep(s){
+  current=s; renderTabs(); renderCard(s); updateFace(s);
+}
+
+function updatePlayUI(){
+  document.getElementById('playIcon').className=playing?'ti ti-player-pause':'ti ti-player-play';
+  document.getElementById('playLabel').textContent=playing?'自動再生中':'自動再生';
+  document.getElementById('playBtn').classList.toggle('playing',playing);
+}
+
+function togglePlay(){ playing=!playing; updatePlayUI(); playing?startAuto():clearInterval(autoT); }
+
+function startAuto(){
+  clearInterval(autoT);
+  autoT=setInterval(()=>{current=(current+1)%getData().length;selectStep(current);},3000);
+}
+
+function drawMorning(ctx,w,h){
+  ctx.clearRect(0,0,w,h);
+  const cx=w/2,cy=80;
+  ctx.strokeStyle='rgba(255,200,80,0.18)'; ctx.lineWidth=1;
+  for(let i=0;i<12;i++){const a=i*Math.PI/6;ctx.beginPath();ctx.moveTo(cx+Math.cos(a)*55,cy+Math.sin(a)*55);ctx.lineTo(cx+Math.cos(a)*80,cy+Math.sin(a)*80);ctx.stroke();}
+  ctx.beginPath();ctx.arc(cx,cy,42,0,Math.PI*2);ctx.fillStyle='rgba(255,210,80,0.12)';ctx.fill();
+  ctx.beginPath();ctx.arc(cx,cy,28,0,Math.PI*2);ctx.fillStyle='rgba(255,210,80,0.15)';ctx.fill();
+}
+
+function initStars(w,h){
+  stars=[];
+  for(let i=0;i<80;i++) stars.push({x:Math.random()*w,y:Math.random()*h*0.7,r:Math.random()*1.5+0.3,phase:Math.random()*Math.PI*2,speed:0.01+Math.random()*0.02});
+}
+
+function drawNight(ctx,w,h,t){
+  ctx.clearRect(0,0,w,h);
+  stars.forEach(s=>{const op=0.3+0.5*Math.abs(Math.sin(t*s.speed+s.phase));ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fillStyle=`rgba(200,220,255,${op})`;ctx.fill();});
+  const mx=w*0.72,my=60,mr=28;
+  ctx.beginPath();ctx.arc(mx,my,mr,0,Math.PI*2);ctx.fillStyle='rgba(220,230,255,0.12)';ctx.fill();
+  ctx.beginPath();ctx.arc(mx+10,my-8,mr*0.85,0,Math.PI*2);ctx.fillStyle='rgba(10,14,26,0.9)';ctx.fill();
+}
+
+function animate(){
+  const canvas=document.getElementById('bgCanvas');
+  const ctx=canvas.getContext('2d');
+  tick+=0.016;
+  if(mode==='morning') drawMorning(ctx,canvas.width,canvas.height);
+  else drawNight(ctx,canvas.width,canvas.height,tick);
+  animFrame=requestAnimationFrame(animate);
+}
+
+function setTime(m){
+  if(mode===m) return;
+  mode=m; current=0;
+  const wrap=document.getElementById('wrap');
+  wrap.className='wrap '+m;
+  document.getElementById('btnMorning').classList.toggle('active',m==='morning');
+  document.getElementById('btnNight').classList.toggle('active',m==='night');
+  document.getElementById('eyebrow').textContent=m==='morning'?'morning routine':'night routine';
+  document.getElementById('heroTitle').innerHTML=m==='morning'?'朝の美肌<br>ルーティン':'夜の美肌<br>ルーティン';
+  renderTabs(); renderCard(0); updateFace(0);
+  if(playing) startAuto();
+}
+
+const canvas=document.getElementById('bgCanvas');
+canvas.width=380; canvas.height=900;
+initStars(380,900); animate();
+
+document.getElementById('tabRow').addEventListener('click',()=>{
+  if(playing){clearInterval(autoT);setTimeout(()=>{if(playing)startAuto();},8000);}
+});
+
+setTimeout(()=>{renderTabs();renderCard(0);updateFace(0);if(playing)startAuto();},800);
+</script>
